@@ -36,4 +36,19 @@ class CategoryController extends Controller
 
         return view('categories.edit', compact('category', 'parent'));
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:50'
+        ]);
+
+        $category = Category::findOrFail($id);
+        $category->update([
+            'name' => $request->name,
+            'parent_id' => $request->parent_id,
+        ]);
+
+        return redirect(route('category.index'))->with(['success' => 'Kategori dioerbaharui']);
+    }
 }
