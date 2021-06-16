@@ -15,4 +15,17 @@ class CategoryController extends Controller
 
         return view('categories.index', compact('category', 'parent'));
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:50|unique:categories'
+        ]);
+
+        $request->request->add(['slug' => $request->name]);
+
+        Category::create($request->except('_token'));
+
+        return redirect(route('category.index'))->with(['success' => 'Kategori baru diambahkan']);
+    }
 }

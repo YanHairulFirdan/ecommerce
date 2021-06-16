@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
+    protected $fillable = ['name', 'parent_id', 'slug'];
+
     public function parent()
     {
         return $this->belongsTo(Category::class);
@@ -14,5 +17,15 @@ class Category extends Model
     public function scopeGetParent($query)
     {
         return $query->whereNull('parent_id');
+    }
+
+    public function setSlugAttribute($value)
+    {
+        $this->attributes['slug'] = Str::slug($value);
+    }
+
+    public function getNameAttribute($value)
+    {
+        return ucfirst($value);
     }
 }
