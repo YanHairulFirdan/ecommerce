@@ -51,4 +51,17 @@ class CategoryController extends Controller
 
         return redirect(route('category.index'))->with(['success' => 'Kategori dioerbaharui']);
     }
+
+    public function destroy($id)
+    {
+        $category = Category::withCount(['child'])->findOrFail($id);
+
+        if (!$category->child_count) {
+            $category->delete();
+
+            return redirect(route('category.index'))->with(['success' => 'Kategori dihapus']);
+        }
+
+        return redirect(route('category.index'))->with(['error' => 'Kategori ini memiliki anak kategory']);
+    }
 }

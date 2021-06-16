@@ -28,4 +28,9 @@ class Category extends Model
     {
         return ucfirst($value);
     }
+
+    public function child()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
 }
