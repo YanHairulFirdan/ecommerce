@@ -90,7 +90,7 @@
                                                             method="post">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <a href="{{ route('category.edit', $row->id) }}"
+                                                            <a href="{{ route('product.edit', $row->id) }}"
                                                                 class="btn btn-warning btn-sm">Edit</a>
                                                             <button class="btn btn-danger btn-sm">Hapus</button>
                                                         </form>

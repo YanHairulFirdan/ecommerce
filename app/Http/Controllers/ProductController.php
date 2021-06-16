@@ -101,7 +101,10 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $category = Category::orderBy('name', 'DESC')->get();
+
+        return view('products.edit', compact('product', 'category'));
     }
 
     /**
@@ -113,7 +116,36 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'required',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|integer',
+            'weight' => 'required|integer',
+            'image' => 'nullable|image|mimes:png,jpeg,jpg',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $fileName = $product->image;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = time() . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $file->storeAs(storage_path('public/products'), $fileName);
+
+            FIle::delete(storage_path('app/public/products/' . $product->image));
+        }
+
+        $product->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'category_id' => $request->category_id,
+            'price' => $request->price,
+            'weight' => $request->weight,
+            'image' => $fileName
+        ]);
+
+        return redirect(route('product.index'))->with(['success' => 'Data produk diperbaharui']);
     }
 
     public function massUploadForm()
