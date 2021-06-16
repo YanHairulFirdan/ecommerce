@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+// use File;
 
 
 class ProductController extends Controller
@@ -121,6 +123,8 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        File::delete(storage_path('/app/public/products/' . $product->image));
+        $product->delete();
     }
 }

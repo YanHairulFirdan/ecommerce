@@ -54,9 +54,9 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
-        $category = Category::withCount(['child'])->findOrFail($id);
+        $category = Category::withCount(['child', 'product'])->findOrFail($id);
 
-        if (!$category->child_count) {
+        if (!$category->child_count && !$category->product_count) {
             $category->delete();
 
             return redirect(route('category.index'))->with(['success' => 'Kategori dihapus']);
