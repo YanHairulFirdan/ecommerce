@@ -20,7 +20,10 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::group(['prefix' => 'administrator', 'middleware' => 'auth'], function () {
-    Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('/product/bulk', 'ProductController@massUploadForm')->name('product.bulk');
     Route::resource('category', 'CategoryController')->except(['create', 'show']);
+
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::post('/product/bulk', 'ProductController@massUpload')->name('product.saveBulk');
     Route::resource('product', 'ProductController');
 });

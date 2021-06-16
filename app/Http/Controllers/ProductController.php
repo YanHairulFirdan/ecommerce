@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Jobs\ProductJob;
 use App\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -113,6 +114,32 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    public function massUploadForm()
+    {
+        $category = Category::orderBy('name', 'DESC')->get();
+
+        return view('products.bulk', compact('category'));
+    }
+
+    public function massUpload(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'file' => 'required|mimes:xlsx'
+        ]);
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileName = time() . '-product.' . $file->getClientOriginalExtension();
+            // dd($fileName);
+            $file->storeAs('public/uploads', $fileName);
+
+            ProductJob::dispatch($request->category_id, $fileName);
+
+            return redirect(route('product.index'))->with(['success' => 'Upload produk dijadwalkan']);
+        }
     }
 
     /**
