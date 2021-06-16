@@ -28,4 +28,12 @@ class CategoryController extends Controller
 
         return redirect(route('category.index'))->with(['success' => 'Kategori baru diambahkan']);
     }
+
+    public function edit($id)
+    {
+        $category = Category::findOrFail($id);
+        $parent   = Category::getParent()->orderBy('name', 'ASC')->get();
+
+        return view('categories.edit', compact('category', 'parent'));
+    }
 }
