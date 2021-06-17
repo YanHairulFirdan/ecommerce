@@ -6,6 +6,7 @@ use App\City;
 use App\Customer;
 use App\District;
 use App\Http\Controllers\Controller;
+use App\Mail\CustomerRegisterMail;
 use App\Order;
 use App\OrderDetail;
 use App\Product;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Monolog\Logger as MonologLogger;
 use PhpParser\ErrorHandler\Collecting;
 
@@ -134,11 +136,11 @@ class CartController extends Controller
             $carts = $this->getCarts();
 
             $subtotal = $this->subTotal(collect($carts));
-
+            $password = Str::random(6);
             $customer = Customer::create([
                 'name' => $request->customer_name,
                 'email' => $request->email,
-                'password' => $request->password,
+                'password' => $password,
                 'phone_number' => $request->customer_phone,
                 'address' => $request->customer_address,
                 'district_id' => $request->district_id,
@@ -173,6 +175,8 @@ class CartController extends Controller
             $carts = [];
 
             $cookie = cookie('dw-carts', json_encode($carts, 2880));
+
+            Mail::to($request->email)->send(new CustomerRegisterMail($customer, $password));
 
             return redirect(route('front.finish_checkout', $order->invoice))->cookie($cookie);
         } catch (\Throwable $th) {
