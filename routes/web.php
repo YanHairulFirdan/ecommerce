@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'Ecommerce\FrontController@index')->name('front.index');
+Route::get('/product', 'Ecommerce\FrontController@product')->name('front.product');
 
 Auth::routes();
 
