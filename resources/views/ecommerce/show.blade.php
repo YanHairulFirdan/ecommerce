@@ -56,18 +56,23 @@
                                         class="input-text qty">
 
                                     <!-- BUAT INPUTAN HIDDEN YANG BERISI ID PRODUK -->
+                                    @error('qty')
+                                        <div class="alert alert-danger">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                     <input type="hidden" name="product_id" value="{{ $product->id }}"
                                         class="form-control">
 
                                     <button
                                         onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
                                         class="increase items-count" type="button">
-                                        <i class="lnr lnr-chevron-up"></i>
+                                        +
                                     </button>
                                     <button
                                         onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
                                         class="reduced items-count" type="button">
-                                        <i class="lnr lnr-chevron-down"></i>
+                                        -
                                     </button>
                                 </div>
                                 <div class="card_area">
