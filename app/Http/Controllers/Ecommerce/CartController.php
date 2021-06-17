@@ -2,10 +2,20 @@
 
 namespace App\Http\Controllers\Ecommerce;
 
+use App\City;
+use App\Customer;
+use App\District;
 use App\Http\Controllers\Controller;
+use App\Order;
+use App\OrderDetail;
 use App\Product;
 use App\Province;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use PhpParser\ErrorHandler\Collecting;
 
 class CartController extends Controller
 {
@@ -41,9 +51,7 @@ class CartController extends Controller
     {
         $carts = json_decode(request()->cookie('dw-carts'), true);
         // dd($carts);
-        $subtotal = collect($carts)->sum(function ($cart) {
-            return $cart['qty'] * $cart['product_price'];
-        });
+        $subtotal = $this->subTotal(collect($carts));
 
         return view('ecommerce.cart', compact('carts', 'subtotal'));
     }
@@ -83,5 +91,104 @@ class CartController extends Controller
         });
 
         return view('ecommerce.checkout', compact('provinces', 'carts', 'subtotal'));
+    }
+
+    public function getCity()
+    {
+        $cities = City::where('province_id', request()->province_id)->get();
+
+        return response()->json(['status' => 'success', 'data' => $cities]);
+    }
+
+    public function getDistrict()
+    {
+        $districts = District::where('city_id', request()->city_id)->get();
+
+        return response()->json(['status' => 'success', 'data' => $districts]);
+    }
+
+    public function processCheckout(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:100',
+            'customer_phone' => 'required',
+            'email' => 'required|email',
+            'customer_address' => 'required|string',
+            'province_id' => 'required|exists:provinces,id',
+            'city_id' => 'required|exists:cities,id',
+            'district_id' => 'required|exists:districts,id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $customer = Customer::where('email', $request->email)->first();
+
+            if (!Auth::check() && $customer) {
+                return redirect()->back()->with(['error' => 'silahkan login terlebih dahulu']);
+            }
+
+            $carts = $this->getCarts();
+
+            $subtotal = $this->subTotal(collect($carts));
+
+            $customer = Customer::create([
+                'name' => $request->customer_name,
+                'email' => $request->email,
+                'phone_number' => $request->customer_phone,
+                'address' => $request->customer_address,
+                'district_id' => $request->district_id,
+                'staus' => false
+            ]);
+
+            $order = Order::create([
+                'invoice' => Str::random(4) . '-' . time(),
+                'customer_id' => $customer->id,
+                'customer_phone' => $request->customer_phone,
+                'customer_address' => $request->customer_address,
+                'district_id' => $request->district_id,
+                'subtotal' => $subtotal
+
+            ]);
+
+            foreach ($carts as $key => $cart) {
+                $product = Product::find($cart['product_id']);
+
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cart['product_id'],
+                    'price' => $cart['product_price'],
+                    'qty' => $cart['qty'],
+                    'weight' => $product->weight,
+                ]);
+            }
+            DB::commit();
+
+            $carts = [];
+
+            $cookie = cookie('dw-carts', json_encode($carts, 2880));
+
+            return redirect(route('front.finish_checkout', $order->invoice))->cookie($cookie);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return redirect()->back()->with(['error', $th->getMessage()]);
+        }
+    }
+
+    public function checkoutFinish($invoice)
+    {
+        $order = Order::where('invoide', $invoice)->first();
+
+        return view('ecommerce.checkout_finish', compact('order'));
+    }
+
+    private function subTotal(Collection $collection)
+    {
+        $subtotal = $collection->sum(function ($cart) {
+            return $cart['qty'] * $cart['product_price'];
+        });
+
+        return $subtotal;
     }
 }

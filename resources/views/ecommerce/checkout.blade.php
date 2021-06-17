@@ -136,3 +136,48 @@
     </section>
     <!--================End Checkout Area =================-->
 @endsection
+@section('js')
+    <script>
+        $('#province_id').on('change', function() {
+            console.log('ok');
+            $.ajax({
+                url: "{{ url('api/city') }}",
+                type: 'GET',
+                data: {
+                    province_id: $(this).val()
+                },
+                success: function(html) {
+                    console.log(html.data);
+                    $('#city_id').empty()
+                    $('#city_id').append('<option value="">Pilihn Kota/Kabupaten</option>');
+                    $.each(html.data, function(key, item) {
+                        $('#city_id').append('<option value="' + item.id + '">' + item.name +
+                            '</option>');
+
+                    })
+                }
+            })
+        })
+
+        $('#city_id').on('change', function() {
+            $.ajax({
+                url: "{{ url('api/district') }}",
+                type: 'GET',
+                data: {
+                    city_id: $(this).val()
+                },
+                success: function(html) {
+                    $('#district_id').empty()
+                    $('#district_id').append('<option value="">Pilihn Kecamatan</option>');
+                    console.log(html.data);
+                    $.each(html.data, function(key, item) {
+                        $('#district_id').append('<option value="' + item.id + '">' + item
+                            .name +
+                            '</option>');
+                    })
+                }
+            })
+        })
+
+    </script>
+@endsection

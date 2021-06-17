@@ -22,6 +22,9 @@ Route::get('/carts', 'Ecommerce\CartController@listCart')->name('front.list_cart
 Route::put('/cart/update', 'Ecommerce\CartController@updateCart')->name('front.update_cart');
 Route::get('/checkout', 'Ecommerce\CartController@checkout')->name('front.checkout');
 
+Route::post('/checkout', 'Ecommerce\CartController@processCheckout')->name('front.store_checkout');
+Route::get('/checkout/{invoice}', 'Ecommerce\CartController@checkoutFinish')->name('front.finish_checkout');
+
 Auth::routes();
 
 Route::group(['prefix' => 'administrator', 'middleware' => 'auth'], function () {
