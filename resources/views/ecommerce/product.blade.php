@@ -65,6 +65,9 @@
                                 </div>
                             </div>
                         @empty
+                            <div class="col-md-12">
+                                <h3 class="text-center">Tidak ada produk</h3>
+                            </div>
                         @endforelse
                         <!-- PROSES LOOPING DATA PRODUK, SAMA DENGAN CODE YANG ADDA DIHALAMAN HOME -->
                     </div>
@@ -82,8 +85,8 @@
                                     @foreach ($categories as $category)
                                         <li>
                                             <!-- JIKA CHILDNYA ADA, MAKA KATEGORI INI AKAN MENG-EXPAND DATA DIBAWAHNYA -->
-                                            <a
-                                                href="{{ $category->child_count > 0 ? '#' : url('/category/' . $category->slug) }}">{{ $category->name }}</a>
+                                            <strong><a
+                                                    href="{{ url('/category/' . $category->slug) }}">{{ $category->name }}</a></strong>
 
                                             <!-- PROSES LOOPING DATA CHILD KATEGORI -->
                                             @foreach ($category->child as $child)
