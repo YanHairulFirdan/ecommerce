@@ -27,7 +27,9 @@ Route::get('/checkout/{invoice}', 'Ecommerce\CartController@checkoutFinish')->na
 
 Route::group(['prefix'=>'member', 'namespace'=>'Ecommerce'], function ()
 {
+    Route::get('dashboard', 'LoginController@dashboard')->name('customer.dashboard');
     Route::get('login', 'LoginController@loginForm')->name('customer.login');
+    Route::post('login', 'LoginController@login')->name('customer.post_login');
     Route::get('verify/{token}', 'FrontController@verifyCustomerRegistratition')->name('customer.verify');
 })
 
