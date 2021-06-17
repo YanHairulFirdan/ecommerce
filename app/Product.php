@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -24,6 +25,11 @@ class Product extends Model
             return '<span class="badge badge-secodary">Draft</span>';
         }
         return '<span class="badge badge-success">Aktif</span>';
+    }
+
+    public function setSlugLabelAttribute($value)
+    {
+        $this->attributes['slug'] = Str::slug($value);
     }
 
     public function category()
