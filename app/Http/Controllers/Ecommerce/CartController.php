@@ -12,9 +12,12 @@ use App\Product;
 use App\Province;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Monolog\Logger as MonologLogger;
 use PhpParser\ErrorHandler\Collecting;
 
 class CartController extends Controller
@@ -124,7 +127,7 @@ class CartController extends Controller
         try {
             $customer = Customer::where('email', $request->email)->first();
 
-            if (!Auth::check() && $customer) {
+            if (!auth()->check() && $customer) {
                 return redirect()->back()->with(['error' => 'silahkan login terlebih dahulu']);
             }
 
@@ -138,12 +141,13 @@ class CartController extends Controller
                 'phone_number' => $request->customer_phone,
                 'address' => $request->customer_address,
                 'district_id' => $request->district_id,
-                'staus' => false
+                'status' => false
             ]);
 
             $order = Order::create([
                 'invoice' => Str::random(4) . '-' . time(),
                 'customer_id' => $customer->id,
+                'customer_name' => $customer->name,
                 'customer_phone' => $request->customer_phone,
                 'customer_address' => $request->customer_address,
                 'district_id' => $request->district_id,
@@ -171,6 +175,8 @@ class CartController extends Controller
             return redirect(route('front.finish_checkout', $order->invoice))->cookie($cookie);
         } catch (\Throwable $th) {
             DB::rollBack();
+            Log::warning('cannot make this transaction');
+            Log::warning($th->getMessage());
 
             return redirect()->back()->with(['error', $th->getMessage()]);
         }
@@ -178,12 +184,12 @@ class CartController extends Controller
 
     public function checkoutFinish($invoice)
     {
-        $order = Order::where('invoide', $invoice)->first();
+        $order = Order::where('invoice', $invoice)->first();
 
         return view('ecommerce.checkout_finish', compact('order'));
     }
 
-    private function subTotal(Collection $collection)
+    private function subTotal($collection)
     {
         $subtotal = $collection->sum(function ($cart) {
             return $cart['qty'] * $cart['product_price'];
