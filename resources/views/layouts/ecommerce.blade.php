@@ -31,7 +31,7 @@
                 </div>
                 <div class="float-right">
                     <ul class="right_side">
-                        <li><a href="login.html">Login/Register</a></li>
+                        <li><a href="{{ route('customer.login') }}">Login</a></li>
                         <li><a href="#">My Account</a></li>
                         <li><a href="contact.html">Contact Us</a></li>
                     </ul>
