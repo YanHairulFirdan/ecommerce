@@ -29,4 +29,11 @@ class FrontController extends Controller
 
         return view('ecommerce.product', compact('products'));
     }
+
+    public function show($slug)
+    {
+        $product = Product::where('slug', $slug)->first();
+
+        return view('ecommerce.show', compact('product'));
+    }
 }
