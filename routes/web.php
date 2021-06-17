@@ -13,17 +13,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'Ecommerce\FrontController@index')->name('front.index');
-Route::get('/product', 'Ecommerce\FrontController@product')->name('front.product');
-Route::get('/product/{slug}', 'Ecommerce\FrontController@show')->name('front.show');
-Route::get('/category/{slug}', 'Ecommerce\FrontController@categoryProduct')->name('front.category');
-Route::post('/cart', 'Ecommerce\CartController@addToCart')->name('front.cart');
-Route::get('/carts', 'Ecommerce\CartController@listCart')->name('front.list_cart');
-Route::put('/cart/update', 'Ecommerce\CartController@updateCart')->name('front.update_cart');
-Route::get('/checkout', 'Ecommerce\CartController@checkout')->name('front.checkout');
 
-Route::post('/checkout', 'Ecommerce\CartController@processCheckout')->name('front.store_checkout');
-Route::get('/checkout/{invoice}', 'Ecommerce\CartController@checkoutFinish')->name('front.finish_checkout');
+Route::group(['prefix'=>'member', 'namespace'=>'Ecommerce'], function ()
+{
+    Route::get('/', 'FrontController@index')->name('front.index');
+    Route::get('/product', 'FrontController@product')->name('front.product');
+    Route::get('/product/{slug}', 'FrontController@show')->name('front.show');
+    Route::get('/category/{slug}', 'FrontController@categoryProduct')->name('front.category');
+    Route::post('/cart', 'CartController@addToCart')->name('front.cart');
+    Route::get('/carts', 'CartController@listCart')->name('front.list_cart');
+    Route::put('/cart/update', 'CartController@updateCart')->name('front.update_cart');
+    Route::get('/checkout', 'CartController@checkout')->name('front.checkout');
+    
+    Route::post('/checkout', 'CartController@processCheckout')->name('front.store_checkout');
+    Route::get('/checkout/{invoice}', 'CartController@checkoutFinish')->name('front.finish_checkout');
+    Route::get('verify/{token}', 'FrontController@verifyCustomerRegistratition')->name('customer.verify');
+})
 
 Auth::routes();
 
