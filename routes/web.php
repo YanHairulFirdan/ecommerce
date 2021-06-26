@@ -25,13 +25,13 @@ Route::get('/checkout', 'Ecommerce\CartController@checkout')->name('front.checko
 Route::post('/checkout', 'Ecommerce\CartController@processCheckout')->name('front.store_checkout');
 Route::get('/checkout/{invoice}', 'Ecommerce\CartController@checkoutFinish')->name('front.finish_checkout');
 
-Route::group(['prefix'=>'member', 'namespace'=>'Ecommerce'], function ()
-{
+Route::group(['prefix' => 'member', 'namespace' => 'Ecommerce'], function () {
     Route::get('dashboard', 'LoginController@dashboard')->name('customer.dashboard');
     Route::get('login', 'LoginController@loginForm')->name('customer.login');
+    Route::get('logout', 'LoginController@logout')->name('customer.logout');
     Route::post('login', 'LoginController@login')->name('customer.post_login');
     Route::get('verify/{token}', 'FrontController@verifyCustomerRegistratition')->name('customer.verify');
-})
+});
 
 Auth::routes();
 

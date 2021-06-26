@@ -10,6 +10,9 @@ class LoginController extends Controller
 {
     public function loginForm()
     {
+        if (auth()->guard('customer')->check()) {
+            return redirect(route('customer.dashboard'));
+        }
         return view('ecommerce.login');
     }
 
@@ -35,5 +38,12 @@ class LoginController extends Controller
     public function dashboard()
     {
         return view('ecommerce.dashboard');
+    }
+
+    public function logout()
+    {
+        auth()->guard('customer')->logout();
+
+        return redirect(route('customer.login'));
     }
 }
